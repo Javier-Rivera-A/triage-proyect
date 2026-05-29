@@ -1,0 +1,53 @@
+databases:
+  - name: triage-db
+    plan: free
+    databaseName: triage_db
+    user: triage_user
+
+services:
+
+  # ── Backend Spring Boot ──────────────────────────────────────────────────────
+  - type: web
+    name: triage-backend
+    runtime: docker
+    dockerfilePath: ./triage_back/DockerFile
+    dockerContext: ./triage_back
+    plan: free
+    healthCheckPath: /api/auth/login
+    envVars:
+      - key: DB_URL
+        fromDatabase:
+          name: triage-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: triage-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: triage-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: "86400000"
+      - key: DDL_AUTO
+        value: create
+      - key: LOG_LEVEL
+        value: INFO
+      # Tras el primer deploy: cambia a update y haz redeploy del backend
+      # CORS: debe coincidir con la URL del frontend en Render
+      - key: CORS_ALLOWED_ORIGIN
+        value: https://triage-frontend.onrender.com
+
+  # ── Frontend Angular + nginx ─────────────────────────────────────────────────
+  - type: web
+    name: triage-frontend
+    runtime: docker
+    dockerfilePath: ./triage-frontend/DockerFile
+    dockerContext: ./triage-frontend
+    plan: free
+    envVars:
+      # nginx sustituye ${BACKEND_URL} en nginx.conf.template al iniciar
+      - key: BACKEND_URL
+        value: https://triage-backend.onrender.com

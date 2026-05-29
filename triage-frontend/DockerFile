@@ -1,0 +1,16 @@
+# Etapa 1: compilar Angular
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --silent
+COPY . .
+RUN npm run build -- --configuration production
+
+# Etapa 2: servir con nginx
+# Angular 17+ genera los archivos en dist/<nombre>/browser/
+FROM nginx:1.25-alpine
+COPY --from=build /app/dist/triage-frontend/browser /usr/share/nginx/html
+# nginx procesa automáticamente los .template con envsubst al iniciar
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

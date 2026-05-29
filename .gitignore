@@ -1,0 +1,20 @@
+# Secretos locales
+.env
+
+# Backend Java/Maven
+triage_back/target/
+triage_back/*.class
+
+# Frontend Node
+triage-frontend/node_modules/
+triage-frontend/dist/
+triage-frontend/.angular/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

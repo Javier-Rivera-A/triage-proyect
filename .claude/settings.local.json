@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\arriv\\\\IdeaProjects\\\\Triage_Proyect\\\\triage_back\" -Recurse -Filter \"*.java\")",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "PowerShell(java -version 2>&1)",
+      "PowerShell($env:JAVA_HOME)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\jdk-21.0.10.7-hotspot\"; cd C:\\\\Users\\\\arriv\\\\IdeaProjects\\\\Triage_Proyect\\\\triage_back; .\\\\mvnw.cmd spring-boot:run)",
+      "PowerShell(Get-ChildItem \"C:\\\\Program Files\" -Directory | Where-Object { $_.Name -match \"jdk|java|temurin|eclipse\" } | Select-Object Name)",
+      "Bash(docker compose *)",
+      "Bash(Select-String -Pattern \"Started|ERROR|Exception|DataInitializer|users\" -SimpleMatch)"
+    ]
+  }
+}

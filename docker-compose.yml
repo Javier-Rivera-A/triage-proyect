@@ -1,0 +1,68 @@
+version: '3.9'
+
+services:
+
+  # ── Base de datos PostgreSQL ─────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: triage_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       triage_db
+      POSTGRES_USER:     ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - triage_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d triage_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Backend Spring Boot ──────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./triage_back
+      dockerfile: DockerFile
+    container_name: triage_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL:              jdbc:postgresql://postgres:5432/triage_db
+      DB_USERNAME:         ${DB_USERNAME}
+      DB_PASSWORD:         ${DB_PASSWORD}
+      JWT_SECRET:          ${JWT_SECRET}
+      JWT_EXPIRATION:      ${JWT_EXPIRATION:-86400000}
+      CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN:-http://localhost}
+      DDL_AUTO:            ${DDL_AUTO:-validate}
+      LOG_LEVEL:           ${LOG_LEVEL:-INFO}
+    networks:
+      - triage_net
+    # No exponer 8080 al exterior: el frontend nginx hace el proxy internamente
+    expose:
+      - "8080"
+
+  # ── Frontend Angular + nginx ─────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./triage-frontend
+      dockerfile: DockerFile
+    container_name: triage_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"       # HTTP — cambia a "443:443" si agregas SSL
+    networks:
+      - triage_net
+
+volumes:
+  postgres_data:
+
+networks:
+  triage_net:
+    driver: bridge
