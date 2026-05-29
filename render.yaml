@@ -54,7 +54,6 @@ services:
     dockerfilePath: ./triage-frontend/DockerFile
     dockerContext: ./triage-frontend
     plan: free
-    port: 80
     envVars:
       # nginx sustituye ${BACKEND_URL} en nginx.conf.template al iniciar
       - key: BACKEND_URL
