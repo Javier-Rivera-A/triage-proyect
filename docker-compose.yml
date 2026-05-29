@@ -32,7 +32,9 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DB_URL:              jdbc:postgresql://postgres:5432/triage_db
+      DB_HOST:             postgres
+      DB_PORT:             5432
+      DB_NAME:             triage_db
       DB_USERNAME:         ${DB_USERNAME}
       DB_PASSWORD:         ${DB_PASSWORD}
       JWT_SECRET:          ${JWT_SECRET}

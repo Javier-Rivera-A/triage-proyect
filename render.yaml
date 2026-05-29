@@ -15,10 +15,18 @@ services:
     plan: free
     healthCheckPath: /api/auth/login
     envVars:
-      - key: DB_URL
+      - key: DB_HOST
         fromDatabase:
           name: triage-db
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: triage-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: triage-db
+          property: database
       - key: DB_USERNAME
         fromDatabase:
           name: triage-db
