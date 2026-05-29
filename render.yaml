@@ -13,7 +13,6 @@ services:
     dockerfilePath: ./triage_back/DockerFile
     dockerContext: ./triage_back
     plan: free
-    healthCheckPath: /api/auth/login
     envVars:
       - key: DB_HOST
         fromDatabase:
