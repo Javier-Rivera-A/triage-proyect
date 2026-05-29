@@ -7,10 +7,13 @@ COPY . .
 RUN npm run build -- --configuration production
 
 # Etapa 2: servir con nginx
-# Angular 17+ genera los archivos en dist/<nombre>/browser/
 FROM nginx:1.25-alpine
 COPY --from=build /app/dist/triage-frontend/browser /usr/share/nginx/html
-# nginx procesa automáticamente los .template con envsubst al iniciar
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY nginx.conf.template /tmp/nginx.conf.template
+
+# Script de inicio: sustituye el placeholder con BACKEND_URL y arranca nginx
+RUN printf '#!/bin/sh\nsed "s|BACKEND_URL_PLACEHOLDER|${BACKEND_URL:-http://localhost:8080}|g" /tmp/nginx.conf.template > /etc/nginx/conf.d/default.conf\nexec nginx -g "daemon off;"\n' > /start.sh \
+    && chmod +x /start.sh
+
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/start.sh"]
